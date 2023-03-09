@@ -1,5 +1,7 @@
 package com.voronkov.authserverforchat.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.voronkov.authserverforchat.dto.AuthRefreshRequest;
 import com.voronkov.authserverforchat.dto.AuthRequest;
 import com.voronkov.authserverforchat.dto.AuthResponse;
@@ -7,6 +9,7 @@ import com.voronkov.authserverforchat.dto.RegistrationRequest;
 import com.voronkov.authserverforchat.model.Person;
 import com.voronkov.authserverforchat.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
+    private final ObjectMapper objectMapper;
 
     @PostMapping("/register")
     public Person registerNewPerson(@RequestBody RegistrationRequest request) {
@@ -30,6 +34,13 @@ public class AuthController {
     @PostMapping("/refresh")
     public AuthResponse refreshTokens(@RequestBody AuthRefreshRequest request) {
         return authService.refresh(request);
+    }
+
+    @GetMapping("/validate")
+    public String validateUser(@RequestHeader(name = "Authorization") String token) throws JsonProcessingException {
+        UserDetails userDetails = authService.validateToken(token);
+        String s = objectMapper.writeValueAsString(userDetails);
+        return s;
     }
 
     @GetMapping("/user/all")

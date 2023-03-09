@@ -8,10 +8,12 @@ import com.voronkov.authserverforchat.model.Person;
 import com.voronkov.authserverforchat.model.RefreshToken;
 import com.voronkov.authserverforchat.repository.RefreshTokenRepository;
 import com.voronkov.authserverforchat.security.JwtProvider;
+import com.voronkov.authserverforchat.security.JwtUserDetailsService;
 import com.voronkov.authserverforchat.service.AuthService;
 import com.voronkov.authserverforchat.service.PersonService;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -25,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final PersonService personService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProvider jwtProvider;
+    private final JwtUserDetailsService jwtUserDetailsService;
 
     @Override
     public Person registerNewUser(RegistrationRequest request) {
@@ -50,17 +53,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse refresh(AuthRefreshRequest request) {
-        if(jwtProvider.validateRefreshToken(request.getToken())) {
+        if (jwtProvider.validateRefreshToken(request.getToken())) {
             String login = jwtProvider.getLoginFromRefreshToken(request.getToken());
             RefreshToken optionalRefreshToken = refreshTokenRepository.findByToken(request.getToken()).orElseThrow();
             String saveRefreshToken = optionalRefreshToken.getToken();
-            if(saveRefreshToken != null && saveRefreshToken.equals(request.getToken())) {
+            if (saveRefreshToken != null && saveRefreshToken.equals(request.getToken())) {
                 Person person = personService.findByLogin(login);
                 String accessToken = jwtProvider.generateAccessToken(login);
                 String refreshToken = jwtProvider.generateRefreshToken(login);
                 refreshTokenRepository.deleteByLogin(login);
-                refreshTokenRepository.save(new RefreshToken(person.getLogin(),refreshToken));
-                return new AuthResponse(accessToken,refreshToken);
+                refreshTokenRepository.save(new RefreshToken(person.getLogin(), refreshToken));
+                return new AuthResponse(accessToken, refreshToken);
             }
         }
         throw new JwtException("Invalid token");
@@ -69,5 +72,12 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public List<Person> getAllPersons() {
         return personService.getAllPersons();
+    }
+
+    @Override
+    public UserDetails validateToken(String token) {
+        String login = jwtProvider.getLoginFromAccessToken(token.substring(7));
+        UserDetails userDetails = jwtUserDetailsService.loadUserByUsername(login);
+        return userDetails ;
     }
 }

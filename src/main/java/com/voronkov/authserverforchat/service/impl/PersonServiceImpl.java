@@ -7,6 +7,7 @@ import com.voronkov.authserverforchat.repository.RoleRepository;
 import com.voronkov.authserverforchat.service.PersonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +16,11 @@ import java.util.List;
 
 @Transactional
 @RequiredArgsConstructor
+@Service
 public class PersonServiceImpl implements PersonService {
     private final PersonRepository personRepository;
     private final RoleRepository roleRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Override
     public Person savePerson(Person person) {

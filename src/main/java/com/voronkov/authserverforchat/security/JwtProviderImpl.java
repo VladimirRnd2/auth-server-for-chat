@@ -6,11 +6,16 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Calendar;
 import java.util.Date;
 
+import static io.jsonwebtoken.lang.Strings.hasText;
+
 @Log
+@Component
 public class JwtProviderImpl implements JwtProvider {
 
     @Value("$(jwt.secret)")
