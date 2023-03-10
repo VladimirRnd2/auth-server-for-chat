@@ -9,7 +9,6 @@ import com.voronkov.authserverforchat.dto.RegistrationRequest;
 import com.voronkov.authserverforchat.model.Person;
 import com.voronkov.authserverforchat.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,10 +36,8 @@ public class AuthController {
     }
 
     @GetMapping("/validate")
-    public String validateUser(@RequestHeader(name = "Authorization") String token) throws JsonProcessingException {
-        UserDetails userDetails = authService.validateToken(token);
-        String s = objectMapper.writeValueAsString(userDetails);
-        return s;
+    public Person validateUser(@RequestHeader(name = "Authorization") String token) throws JsonProcessingException {
+        return authService.validateToken(token);
     }
 
     @GetMapping("/user/all")

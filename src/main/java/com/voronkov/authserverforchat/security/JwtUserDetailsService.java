@@ -6,7 +6,6 @@ import com.voronkov.authserverforchat.service.PersonService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -30,12 +29,7 @@ public class JwtUserDetailsService implements UserDetailsService {
         if (person == null) {
             throw new UsernameNotFoundException("user with login " + username + " not found");
         }
-//        return new JwtUser(person.getLogin(), person.getPassword(), mapToGrantedAuthorities(person.getRoles()));
-        return User.builder()
-                .username(person.getLogin())
-                .password(person.getPassword())
-                .authorities(mapToGrantedAuthorities(person.getRoles()))
-                .build();
+        return new JwtUser(person.getLogin(), person.getPassword(), mapToGrantedAuthorities(person.getRoles()));
     }
 
     private static List<GrantedAuthority> mapToGrantedAuthorities(List<Role> userRoles) {

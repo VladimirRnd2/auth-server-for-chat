@@ -19,5 +19,5 @@ public interface AuthService {
 
     List<Person> getAllPersons();
 
-    UserDetails validateToken(String token);
+    Person validateToken(String token);
 }
